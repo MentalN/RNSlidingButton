@@ -21,9 +21,9 @@ export default class RNSlidingButton extends Component {
         super(props);
         this.buttonWidth = 0;
         this.state = {
-            initialX: 0,
-            locationX: 0,
-            dx: 0,
+            initialY: 0,
+            locationY: 0,
+            dy: 0,
             animatedX: new Animated.Value(0),
             animatedY: new Animated.Value(0),
             released: false,
@@ -36,19 +36,19 @@ export default class RNSlidingButton extends Component {
         let slidePercent = this.props.successfulSlidePercent || 40;
         let successfulSlideWidth = this.buttonWidth * slidePercent / 100;
         if (!this.props.slideDirection) {
-            return this.state.dx > successfulSlideWidth;  // Defaults to right slide
+            return this.state.dy > successfulSlideWidth;  // Defaults to right slide
         } else if (this.props.slideDirection === SlideDirection.RIGHT) {
-            return this.state.dx > successfulSlideWidth;
+            return this.state.dy > successfulSlideWidth;
         } else if (this.props.slideDirection === SlideDirection.LEFT) {
-            return this.state.dx < (-1 * successfulSlideWidth);
+            return this.state.dy < (-1 * successfulSlideWidth);
         } else if (this.props.slideDirection === SlideDirection.ANY) {
-            return Math.abs(this.state.dx) > successfulSlideWidth;
+            return Math.abs(this.state.dy) > successfulSlideWidth;
         }
     }
 
-    onSlide(x) {
+    onSlide(y) {
         if (this.props.onSlide) {
-            this.props.onSlide(x);
+            this.props.onSlide(y);
         }
     }
 
@@ -66,10 +66,10 @@ export default class RNSlidingButton extends Component {
 
             onPanResponderMove: (evt, gestureState) => {
                 self.setState({
-                    locationX: evt.nativeEvent.locationX,
-                    dx: gestureState.dx
+                    locationY: evt.nativeEvent.locationY,
+                    dy: gestureState.dy
                 });
-                self.onSlide(gestureState.dx);
+                self.onSlide(gestureState.dy);
             },
 
             onPanResponderRelease: (evt, gestureState) => {
@@ -82,7 +82,7 @@ export default class RNSlidingButton extends Component {
                 this.snapToPosition(() => {
                     self.setState({
                         released: false,
-                        dx: self.state.initialX
+                        dy: self.state.initialY
                     });
                 });
             },
@@ -91,7 +91,7 @@ export default class RNSlidingButton extends Component {
                 this.snapToPosition(() => {
                     self.setState({
                         released: false,
-                        dx: self.state.initialX
+                        dy: self.state.initialY
                     });
                 });
             },
@@ -110,8 +110,8 @@ export default class RNSlidingButton extends Component {
 
     moveButtonOut(onCompleteCallback) {
         let self = this;
-        let startPos = this.state.initialX + this.state.dx;
-        let endPos = this.state.dx < 0 ? -this.buttonWidth : this.buttonWidth * 2;
+        let startPos = this.state.initialY + this.state.dy;
+        let endPos = this.state.dy < 0 ? -this.buttonWidth : this.buttonWidth * 2;
 
         this.setState({
             released: true,
@@ -133,8 +133,8 @@ export default class RNSlidingButton extends Component {
 
     snapToPosition(onCompleteCallback) {
         let self = this;
-        let startPos = this.state.initialX + this.state.dx;
-        let endPos = this.state.initialX;
+        let startPos = this.state.initialY + this.state.dy;
+        let endPos = this.state.initialY;
         this.setState({
             released: true,
             animatedX: new Animated.Value(startPos),
@@ -156,14 +156,14 @@ export default class RNSlidingButton extends Component {
     onLayout(event) {
         this.buttonWidth = event.nativeEvent.layout.width;
         this.setState({
-            initialX: event.nativeEvent.layout.x
+            initialY: event.nativeEvent.layout.y
         });
     }
 
     render() {
         let style = [styles.button, {
-            left: this.state.dx,
-            right: this.state.dx * -1,
+            left: this.state.dy,
+            right: this.state.dy * -1,
             backgroundColor: 'transparent',
         }];
         let button: undefined;
